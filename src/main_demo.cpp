@@ -4,6 +4,8 @@
 #include <iostream>
 
 int main() {
+
+	spdlog::set_level(spdlog::level::debug);
 	minigl::Window window{800, 600, "demo"};
 
 	spdlog::info("Succesfully created window");

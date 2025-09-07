@@ -1,6 +1,7 @@
 #include "core/Shader.h"
 
 #include <spdlog/spdlog.h>
+#include <glm/gtc/type_ptr.hpp>
 #include <glad/glad.h>
 
 #include <iostream>
@@ -19,14 +20,10 @@ namespace minigl {
 
 		GLuint vertex, fragment;
 
-		vertex = compile(GL_VERTEX_SHADER, v_code); /*glCreateShader(GL_VERTEX_SHADER);
-		glShaderSource(vertex, 1, &v_code, NULL);
-		glCompileShader(vertex);*/
+		vertex = compile(GL_VERTEX_SHADER, v_code);
 		checkCompile(vertex, GL_VERTEX_SHADER);
 
-		fragment = compile(GL_FRAGMENT_SHADER, f_code); /*glCreateShader(GL_FRAGMENT_SHADER);
-		glShaderSource(fragment, 1, &f_code, NULL);
-		glCompileShader(fragment);*/
+		fragment = compile(GL_FRAGMENT_SHADER, f_code);
 		checkCompile(fragment, GL_FRAGMENT_SHADER);
 
 		m_id = glCreateProgram();
@@ -51,14 +48,38 @@ namespace minigl {
 		glUseProgram(m_id);
 	}
 
+	void Shader::setMat4(const char* name, const glm::mat4& mat) const
+	{
+		glUniformMatrix4fv(glGetUniformLocation(m_id, name), 1, GL_FALSE, glm::value_ptr(mat));
+	}
+
+	void Shader::setVec3(const char* name, const glm::vec3& vec) const
+	{
+		glUniform3f(glGetUniformLocation(m_id, name), vec.x, vec.y, vec.x);
+	}
+
+	void Shader::setBool(const char* name, int v)
+	{
+		glUniform1i(glGetUniformLocation(m_id, name), v);
+	}
+
+	void Shader::setInt(const char* name, int v) const
+	{
+		glUniform1i(glGetUniformLocation(m_id, name), v);
+	}
+
+	void Shader::setFloat(const char* name, float v) const
+	{
+		glUniform1f(glGetUniformLocation(m_id, name), v);
+	}
+
 	std::string Shader::loadFile(const std::string& path) {
 		std::ifstream file(path);
 
 		file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 
 		if (!file.is_open()) {
-			std::string msg("Failed to load file: ");
-			spdlog::error(msg + path);
+			spdlog::error("failed to open file {}", path);
 			return "";
 		}
 		std::stringstream buffer;
@@ -69,7 +90,7 @@ namespace minigl {
 		return buffer.str();
 		
 	}
-	unsigned int Shader::compile(GLenum type, const char* source)
+	unsigned int Shader::compile(unsigned int type, const char* source)
 	{
 		GLuint shader;
 		shader = glCreateShader(type);
@@ -78,7 +99,7 @@ namespace minigl {
 		return shader;
 
 	}
-	void Shader::checkCompile(GLuint id, unsigned int type)
+	void Shader::checkCompile(unsigned int id, unsigned int type)
 	{
 		int success;
 		char infoLog[1024];
