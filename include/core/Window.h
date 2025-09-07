@@ -12,8 +12,8 @@ namespace minigl {
 			void swap();
 			GLFWwindow* handle() { return m_win; }
 			float deltaSeconds() const { return m_dt;  }
-			float width() const { return m_w; }
-			float height() const { return m_h; }
+			int width() const { return m_w; }
+			int height() const { return m_h; }
 		private:
 			GLFWwindow* m_win{};
 			int m_w{}, m_h{};

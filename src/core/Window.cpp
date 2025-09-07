@@ -1,3 +1,4 @@
+#include <glad/glad.h>
 #include "core/Window.h"
 #include <spdlog/spdlog.h>
 
@@ -22,6 +23,8 @@ namespace minigl {
 			std::runtime_error("Window creation failed");
 		}
 		glfwMakeContextCurrent(m_win);
+
+		gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 	}
 
 	Window::~Window()

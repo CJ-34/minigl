@@ -62,13 +62,5 @@
       }
     }
   ],
-  "version": 3,
-  "buildPresets": [
-    {
-      "name": "buildPresets",
-      "displayName": "Custom Build Preset",
-      "description": "Custom build preset description",
-      "configurePreset": "x64-debug"
-    }
-  ]
+  "version": 3
 }

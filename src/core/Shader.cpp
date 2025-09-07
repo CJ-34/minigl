@@ -11,17 +11,22 @@
 namespace minigl {
 	Shader::Shader(const std::string& v_path, const std::string& f_path) 
 	: m_id(0) {
-		const char* v_code = loadFile(v_path).c_str();
-		spdlog::debug(v_code);
-		const char* f_code = loadFile(f_path).c_str();
-		spdlog::debug(f_code);
+		std::string vertex_code = loadFile(v_path);
+		std::string fragment_code = loadFile(f_path);
+
+		const char* v_code = vertex_code.c_str();
+		const char* f_code = fragment_code.c_str();
 
 		GLuint vertex, fragment;
 
-		vertex = compile(GL_VERTEX_SHADER, v_code);
+		vertex = compile(GL_VERTEX_SHADER, v_code); /*glCreateShader(GL_VERTEX_SHADER);
+		glShaderSource(vertex, 1, &v_code, NULL);
+		glCompileShader(vertex);*/
 		checkCompile(vertex, GL_VERTEX_SHADER);
 
-		fragment = compile(GL_FRAGMENT_SHADER, f_code);
+		fragment = compile(GL_FRAGMENT_SHADER, f_code); /*glCreateShader(GL_FRAGMENT_SHADER);
+		glShaderSource(fragment, 1, &f_code, NULL);
+		glCompileShader(fragment);*/
 		checkCompile(fragment, GL_FRAGMENT_SHADER);
 
 		m_id = glCreateProgram();
@@ -49,6 +54,8 @@ namespace minigl {
 	std::string Shader::loadFile(const std::string& path) {
 		std::ifstream file(path);
 
+		file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+
 		if (!file.is_open()) {
 			std::string msg("Failed to load file: ");
 			spdlog::error(msg + path);
@@ -56,18 +63,22 @@ namespace minigl {
 		}
 		std::stringstream buffer;
 		buffer << file.rdbuf();
+		
+		file.close();
+
 		return buffer.str();
 		
 	}
-	unsigned int Shader::compile(unsigned int type, const char* source)
+	unsigned int Shader::compile(GLenum type, const char* source)
 	{
 		GLuint shader;
 		shader = glCreateShader(type);
 		glShaderSource(shader, 1, &source, NULL);
+		glCompileShader(shader);
 		return shader;
 
 	}
-	void Shader::checkCompile(unsigned int id, unsigned int type)
+	void Shader::checkCompile(GLuint id, unsigned int type)
 	{
 		int success;
 		char infoLog[1024];
@@ -78,7 +89,7 @@ namespace minigl {
 			glGetShaderiv(id, GL_COMPILE_STATUS, &success);
 			if (!success) {
 				glGetShaderInfoLog(id, sizeof(infoLog), NULL, infoLog);
-				spdlog::error("failed compilation of {}: {}", message, infoLog);
+				spdlog::error("failed compilation of {} shader: {}", message, infoLog);
 			}
 		}
 		else {
